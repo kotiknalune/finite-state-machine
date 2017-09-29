@@ -2,11 +2,11 @@ class FSM {
 
    constructor(config) {
         if (config != null) {
-            this.throwCoin = config.initial;
+            this.normal = config.initial;
             this.states = config.states;
             this.configInitial = config.initial;
-            this.statesHistory = [];
-            this.nextStatesHistory = [];
+            this.statesPast = [];
+            this.nextStatesPast = [];
         } else {
             throw new Error("No config you have, young padawan");
         }
@@ -14,31 +14,31 @@ class FSM {
 
 
     getState() {
-        return this.throwCoin;
+        return this.normal;
     }
   
-    cpushButton(state) {
+    changeState(state) {
         if (state in this.states) {
-            this.nextStatesHistory = [];
-            this.statesHistory.push(this.throwCoin);
-            this.throwCoin = state;
+            this.nextStatesPast = [];
+            this.statesPast.push(this.normal);
+            this.normal = state;
         } else {
             throw new Error("State aint on maps, sheriff");
         }
     }
 
      trigger(event) {
-        if (event in this.states[this.throwCoin].transitions) {
-            this.nextStatesHistory = [];
-            this.statesHistory.push(this.throwCoin);
-            this.throwCoin = this.states[this.throwCoin].transitions[event];
+        if (event in this.states[this.normal].transitions) {
+            this.nextStatesPast = [];
+            this.statesPast.push(this.normal);
+            this.normal = this.states[this.normal].transitions[event];
         } else {
             throw new Error("Something went wrong, Houston");
         }
     }
 
     reset() {
-        this.throwCoin = this.configInitial;
+        this.normal = this.configInitial;
     }
      getStates(event) {
         var array = [];
@@ -57,27 +57,27 @@ class FSM {
         }
     }
    undo() {
-        if (this.statesHistory.length > 0) {
-            this.nextStatesHistory.push(this.throwCoin);
-            this.throwCoin = this.statesHistory.pop();
+        if (this.statesPast.length > 0) {
+            this.nextStatesPast.push(this.normal);
+            this.normal = this.statesPast.pop();
             return true;
         } else {
             return false;
         }
     }
     redo() {
-        if (this.nextStatesHistory.length > 0) {
-            this.statesHistory.push(this.throwCoin);
-            this.throwCoin = this.nextStatesHistory.pop();
+        if (this.nextStatesPast.length > 0) {
+            this.statesPast.push(this.normal);
+            this.normal = this.nextStatesPast.pop();
             return true;
         } else {
             return false;
         }
     }
 
-    clearHistory() {
-        this.nextStatesHistory = [];
-        this.statesHistory = [];
+    clearPast() {
+        this.nextStatesPast = [];
+        this.statesPast = [];
     }
 }
 
