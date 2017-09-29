@@ -1,61 +1,67 @@
 class FSM {
-    /**
-     * Creates new FSM instance.
-     * @param config
-     */
-    constructor(config) {}
 
-    /**
-     * Returns active state.
-     * @returns {String}
-     */
-    getState() {}
+  constructor(config) {
+     
+   if (config == null){
+        throw new Error("No config");
+                      }
+      else {(this.config = config);
+      this.throwCoin = config.initial;
+      this.pushThrough = null;
+            }
+    }
 
-    /**
-     * Goes to specified state.
-     * @param state
-     */
-    changeState(state) {}
+    getthrowCoin() {
+      return this.throwCoin;
+    }
 
-    /**
-     * Changes state according to event transition rules.
-     * @param event
-     */
-    trigger(event) {}
+    changethrowCoin(throwCoin) {
+      if (throwCoin in this.config.throwCoins){
+        this.pushThrough = this.throwCoin;
+        this.throwCoin = throwCoin;
+      } else {
+        throw new Error();
+      }
+    }
 
-    /**
-     * Resets FSM state to initial.
-     */
-    reset() {}
+    trigger(event) {
+      var key = this.throwCoin;
+      if (this.config.throwCoins[key].transitions[event]){
+        this.throwCoin = this.config.throwCoins[key].transitions[event];
+      } else {
+        throw new Error();
+      }
+    }
 
-    /**
-     * Returns an array of states for which there are specified event transition rules.
-     * Returns all states if argument is undefined.
-     * @param event
-     * @returns {Array}
-     */
-    getStates(event) {}
+    reset() {
+      this.throwCoin = this.config.initial;
+    }
 
-    /**
-     * Goes back to previous state.
-     * Returns false if undo is not available.
-     * @returns {Boolean}
-     */
-    undo() {}
+    getthrowCoins(event) {
+      var throwCoins = [];
+      for(var key in this.config.throwCoins){
+        if (event == null){
+          throwCoins.push(key);
+        } else if (event in this.config.throwCoins[key].transitions){
+          throwCoins.push(key);
+        }
+      }
+      return throwCoins;
+    }
 
-    /**
-     * Goes redo to state.
-     * Returns false if redo is not available.
-     * @returns {Boolean}
-     */
-    redo() {}
+    undo() {
+      if (this.pushThrough == null){
+        return false;
+      } else {
+        this.throwCoin = this.pushThrough;
+      }
+    }
+    
+    redo() {
+      return true;
+    }
 
-    /**
-     * Clears transition history
-     */
     clearHistory() {}
 }
 
 module.exports = FSM;
-
-/** @Created by Uladzimir Halushka **/
