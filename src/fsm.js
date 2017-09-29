@@ -1,67 +1,84 @@
 class FSM {
 
-  constructor(config) {
-     
-   if (config == null){
-        throw new Error("No config");
-                      }
-      else {(this.config = config);
-      this.throwCoin = config.initial;
-      this.pushThrough = null;
-            }
+   constructor(config) {
+        if (config != null) {
+            this.throwCoin = config.initial;
+            this.states = config.states;
+            this.configInitial = config.initial;
+            this.statesHistory = [];
+            this.nextStatesHistory = [];
+        } else {
+            throw new Error("No config you have, young padawan");
+        }
     }
 
-    getthrowCoin() {
-      return this.throwCoin;
+
+    getState() {
+        return this.throwCoin;
+    }
+  
+    cpushButton(state) {
+        if (state in this.states) {
+            this.nextStatesHistory = [];
+            this.statesHistory.push(this.throwCoin);
+            this.throwCoin = state;
+        } else {
+            throw new Error("State aint on maps, sheriff");
+        }
     }
 
-    changethrowCoin(throwCoin) {
-      if (throwCoin in this.config.throwCoins){
-        this.pushThrough = this.throwCoin;
-        this.throwCoin = throwCoin;
-      } else {
-        throw new Error();
-      }
-    }
-
-    trigger(event) {
-      var key = this.throwCoin;
-      if (this.config.throwCoins[key].transitions[event]){
-        this.throwCoin = this.config.throwCoins[key].transitions[event];
-      } else {
-        throw new Error();
-      }
+     trigger(event) {
+        if (event in this.states[this.throwCoin].transitions) {
+            this.nextStatesHistory = [];
+            this.statesHistory.push(this.throwCoin);
+            this.throwCoin = this.states[this.throwCoin].transitions[event];
+        } else {
+            throw new Error("Something went wrong, Houston");
+        }
     }
 
     reset() {
-      this.throwCoin = this.config.initial;
+        this.throwCoin = this.configInitial;
     }
-
-    getthrowCoins(event) {
-      var throwCoins = [];
-      for(var key in this.config.throwCoins){
-        if (event == null){
-          throwCoins.push(key);
-        } else if (event in this.config.throwCoins[key].transitions){
-          throwCoins.push(key);
+     getStates(event) {
+        var array = [];
+        if (event == null) {
+            for (var state in this.states) {
+                array.push(state);
+            }
+            return array;
+        } else {
+            for (var state in this.states) {
+                if (this.states[state].transitions[event]) {
+                    array.push(state);
+                }
+            }
+            return array;
         }
-      }
-      return throwCoins;
     }
-
-    undo() {
-      if (this.pushThrough == null){
-        return false;
-      } else {
-        this.throwCoin = this.pushThrough;
-      }
+   undo() {
+        if (this.statesHistory.length > 0) {
+            this.nextStatesHistory.push(this.throwCoin);
+            this.throwCoin = this.statesHistory.pop();
+            return true;
+        } else {
+            return false;
+        }
     }
-    
     redo() {
-      return true;
+        if (this.nextStatesHistory.length > 0) {
+            this.statesHistory.push(this.throwCoin);
+            this.throwCoin = this.nextStatesHistory.pop();
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    clearHistory() {}
+    clearHistory() {
+        this.nextStatesHistory = [];
+        this.statesHistory = [];
+    }
 }
 
 module.exports = FSM;
